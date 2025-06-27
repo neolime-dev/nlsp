@@ -2,6 +2,7 @@ import Clock from "./components/Clock"
 //import Handler from "./components/Handler"
 //import Form from "./components/Form"
 import SearchHandler from "./components/SearchHandler"
+import Sugester from "./components/Sugester"
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
       <Handler /> 
       */}
       <SearchHandler />
+      <Sugester />
     </div>
 
   )
