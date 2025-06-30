@@ -1,22 +1,22 @@
-import Clock from "./components/Clock"
-//import Handler from "./components/Handler"
-//import Form from "./components/Form"
-import SearchHandler from "./components/SearchHandler"
-import Sugester from "./components/Sugester"
+import { useState } from 'react';
+import Clock from "./components/Clock";
+import SearchHandler from "./components/SearchHandler";
+import Sugester from "./components/Sugester";
 
 function App() {
-    return (
+  const [showHelp, setShowHelp] = useState(false);
+
+  const toggleHelp = () => {
+    setShowHelp(!showHelp);
+  };
+
+  return (
     <div className="App">
-      <Clock /> 
-      {/* 
-      <Form />
-      <Handler /> 
-      */}
+      <Clock onToggleHelp={toggleHelp} />
       <SearchHandler />
       <Sugester />
     </div>
-
-  )
+  );
 }
 
-export default App
+export default App;

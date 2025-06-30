@@ -1,291 +1,345 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import QueryParser from './QueryParser';
+import Help from './Help';
+import Settings from './Settings';
 
 const SearchHandler = () => {
-  // Configuração dos sites com padrões, URLs e estilos
-  const sites = {
-    r: {
-      patterns: [/^r$/, /^r\/.*/],
-      url: (input) => input === 'r' ? 'https://reddit.com/' : `https://reddit.com/${input.slice(2)}`,
-      style: { backgroundImage: "linear-gradient(135deg, rgb(255, 132, 86), rgb(255, 69, 0))", color: "#d4d4d4" }
-    },
-    tt: {
-      patterns: [/^tt$/, /^tt\/.*/, /^tt:/],
-      url: (input) => input === 'tt' ? 'https://twitter.com/' : `https://twitter.com/${input.slice(3)}`,
-      style: { backgroundImage: "linear-gradient(135deg, rgb(29, 161, 242), rgb(25, 96, 143))", color: "#d4d4d4" }
-    },
-    y: {
-      patterns: [/^y$/, /^y\/.*/, /^y:/],
-      url: (input) => input === 'y' ? 'https://youtube.com/' : `https://youtube.com/${input.slice(2)}`,
-      style: { backgroundImage: "linear-gradient(135deg, rgb(205, 32, 31), rgb(205, 76, 31))", color: "#d4d4d4" }
-    },
-    g: {
-      patterns: [/^g$/, /^g\/.*/, /^g:/],
-      url: (input) => input === 'g' ? 'https://github.com/' : `https://github.com/${input.slice(2)}`,
-      style: { backgroundImage: "linear-gradient(135deg, rgb(28, 33, 40), rgb(45, 51, 59))", color: "#d4d4d4" }
-    },
-    i: {
-      patterns: [/^i$/, /^i\/.*/],
-      url: (input) => input === 'i' ? 'https://instagram.com/' : `https://instagram.com/${input.slice(2)}`,
-      style: { backgroundImage: "linear-gradient(45deg, rgb(64, 93, 230), rgb(88, 81, 219), rgb(131, 58, 180), rgb(193, 53, 132), rgb(225, 48, 108), rgb(253, 29, 29))", color: "#d4d4d4" }
-    },
-    tw: {
-      patterns: [/^tw$/, /^tw\/.*/, /^tw:/],
-      url: (input) => input === 'tw' ? 'https://twitch.tv/' : `https://twitch.tv/${input.slice(3)}`,
-      style: { backgroundImage: "linear-gradient(135deg, rgb(169, 112, 255), rgb(67, 44, 101))", color: "#d4d4d4" }
-    },
-    mk: {
-      patterns: [/^mk$/, /^mk\/.*/],
-      url: () => 'https://monkeytype.com/',
-      style: { backgroundImage: "none", backgroundColor: "#323437", color: "#d4d4d4" }
-    },
-    s: {
-      patterns: [/^s$/, /^s\/.*/],
-      url: () => 'https://spotify.com/',
-      style: { backgroundImage: "linear-gradient(135deg, rgb(29, 211, 94), rgb(30, 215, 96))", color: "#d4d4d4" }
-    },
-    w: {
-      patterns: [/^w$/, /^w\/.*/],
-      url: () => 'https://web.whatsapp.com/',
-      style: { backgroundImage: "linear-gradient(135deg, rgb(37, 211, 102), rgb(18, 140, 126), rgb(7, 94, 84))", color: "#d4d4d4" }
-    },
-    tr: {
-      patterns: [/^tr$/, /^tr\/.*/, /^tr:/],
-      url: () => 'https://translate.google.com/',
-      style: { backgroundImage: "none", backgroundColor: "rgb(26, 115, 232)", color: "#d4d4d4" }
-    },
-    dc: {
-      patterns: [/^dc$/, /^dc\/.*/],
-      url: () => 'https://discord.com/',
-      style: { backgroundImage: "none", backgroundColor: "#7289da", color: "#d4d4d4" }
-    },
-    m: {
-      patterns: [/^m$/, /^m\/.*/],
-      url: () => 'https://gmail.com/',
-      style: { backgroundImage: "none", backgroundColor: "#dd5145", color: "#d4d4d4" }
-    },
-    n: {
-      patterns: [/^n$/, /^n\/.*/],
-      url: () => 'https://netflix.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #E50914, #CB020C)", color: "#d4d4d4" }
-    },
-    htb: {
-      patterns: [/^htb$/],
-      url: () => 'https://hackthebox.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #1A2332, #111927)", color: "#9FEF00" }
-    },
-    thm: {
-      patterns: [/^thm$/],
-      url: () => 'https://tryhackme.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #1C2538, #161E2D)", color: "#d4d4d4" }
-    },
-    pv: {
-      patterns: [/^pv$/],
-      url: () => 'https://primevideo.com/',
-      style: { backgroundImage: "none", backgroundColor: "#1b242f", color: "#d4d4d4" }
-    },
-    p: {
-      patterns: [/^p$/, /^p:/],
-      url: () => 'https://pinterest.com/',
-      style: { backgroundImage: "none", backgroundColor: "#c42027", color: "#d4d4d4" }
-    },
-    l: {
-      patterns: [/^l$/],
-      url: () => 'https://linkedin.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #0a66c2, #0d86ff)", color: "#d4d4d4" }
-    },
-    a: {
-      patterns: [/^a$/, /^a:/],
-      url: () => 'https://aliexpress.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #E52D03, #FD9300)", color: "#d4d4d4" }
-    },
-    t: {
-      patterns: [/^t$/],
-      url: () => 'https://trello.com/',
-      style: { backgroundImage: "none", backgroundColor: "#0077bd", color: "#d4d4d4" }
-    },
-    c: {
-      patterns: [/^c$/],
-      url: () => 'https://chat.openai.com/',
-      style: { backgroundImage: "none", backgroundColor: "#343541", color: "#bdbdca" }
-    },
-    o: {
-      patterns: [/^o$/],
-      url: () => 'https://outlook.com/',
-      style: { backgroundImage: "none", backgroundColor: "#0f6cbd", color: "#bdbdca" }
-    },
-    no: {
-      patterns: [/^no$/],
-      url: () => 'https://notion.so/',
-      style: { backgroundImage: "none", backgroundColor: "#ffffff", color: "#37352f" }
-    },
-    d: {
-      patterns: [/^d$/],
-      url: () => 'https://drive.google.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #FFD04B, #1EA362, #4688F3)", color: "#d4d4d4" }
-    },
-    h: {
-      patterns: [/^h$/],
-      url: () => 'https://habbo.com/',
-      style: { backgroundImage: "none", backgroundColor: "#f7c600", color: "#000000" }
-    },
-    u: {
-      patterns: [/^u$/],
-      url: () => 'https://unisantos.br/',
-      style: { backgroundImage: "none", backgroundColor: "#52659b", color: "#FFFFFF" }
-    },
-    cv: {
-      patterns: [/^cv$/],
-      url: () => 'https://canva.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #01c3cc, #7d2ae7)", color: "#FFFFFF" }
-    },
-    pg: {
-      patterns: [/^pg$/],
-      url: () => 'https://pontogo.com.br/',
-      style: { backgroundImage: "none", backgroundColor: "#000099", color: "#FFFFFF" }
-    },
-    z: {
-      patterns: [/^z$/],
-      url: () => 'https://zoho.com/',
-      style: { backgroundImage: "linear-gradient(135deg, #e42527, #089949, #226db4, #f9b21d)", color: "#FFFFFF" }
-    },
-    sh: {
-      patterns: [/^sh$/],
-      url: () => 'https://shopee.com.br/',
-      style: { backgroundImage: "linear-gradient(135deg, #f53d2d, #fe6432)", color: "#FFFFFF" }
-    },
-    ml: {
-      patterns: [/^ml$/],
-      url: () => 'https://mercadolivre.com.br/',
-      style: { backgroundImage: "none", backgroundColor: "#ffe600", color: "#2a2a2a" }
-    },
-    st: {
-      patterns: [/^st$/],
-      url: () => 'https://speedtest.net/',
-      style: { backgroundImage: "none", backgroundColor: "#141526", color: "#ffffff" }
-    },
-    nc: {
-      patterns: [/^nc$/],
-      url: () => 'https://calendar.notion.so/',
-      style: { backgroundImage: "none", backgroundColor: "#242424", color: "#ffffff" }
-    },
-    f: {
-      patterns: [/^f$/],
-      url: () => 'https://figma.com/',
-      style: { backgroundImage: "none", backgroundColor: "#2c2c2c", color: "#ffffff" }
-    }
-  };
+  const [isVisible, setIsVisible] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [showHelp, setShowHelp] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [invertedColors, setInvertedColors] = useState(
+    JSON.parse(localStorage.getItem('invertColorCookie') || 'false')
+  );
+  const inputRef = useRef(null);
 
-  const body = document.body;
-  const defaultStyle = { backgroundImage: "none", backgroundColor: "#101010", color: "#d4d4d4" };
+  // Configuração dos sites/comandos
+  const commands = [
+    // General
+    { key: 'g', name: 'GitHub', url: 'https://github.com', search: '/search?q={}', category: 'General', color: '#333', quickLaunch: true },
+    { key: 'gm', name: 'Gmail', url: 'https://mail.google.com', category: 'General', color: '#EA4335' },
+    { key: 'gd', name: 'Google Drive', url: 'https://drive.google.com', category: 'General', color: '#4285F4' },
+    { key: 'cal', name: 'Google Calendar', url: 'https://calendar.google.com', category: 'General', color: '#4285F4' },
+    
+    // Programming
+    { key: 'so', name: 'Stack Overflow', url: 'https://stackoverflow.com', search: '/search?q={}', category: 'Programming', color: '#F48024' },
+    { key: 'mdn', name: 'MDN Web Docs', url: 'https://developer.mozilla.org', search: '/en-US/search?q={}', category: 'Programming', color: '#000' },
+    { key: 'npm', name: 'NPM', url: 'https://npmjs.com', search: '/search?q={}', category: 'Programming', color: '#CB3837' },
+    { key: 'gh', name: 'GitHub Issues', url: 'https://github.com/issues', category: 'Programming', color: '#333' },
+    
+    // Social
+    { key: 'r', name: 'Reddit', url: 'https://reddit.com', search: '/search?q={}', category: 'Social', color: '#FF4500', quickLaunch: true },
+    { key: 'tw', name: 'Twitter', url: 'https://twitter.com', search: '/search?q={}', category: 'Social', color: '#1DA1F2' },
+    { key: 'li', name: 'LinkedIn', url: 'https://linkedin.com', search: '/search/results/all/?keywords={}', category: 'Social', color: '#0077B5' },
+    
+    // Entertainment
+    { key: 'y', name: 'YouTube', url: 'https://youtube.com', search: '/results?search_query={}', category: 'Entertainment', color: '#FF0000', quickLaunch: true },
+    { key: 'n', name: 'Netflix', url: 'https://netflix.com', search: '/search?q={}', category: 'Entertainment', color: '#E50914' },
+    { key: 'sp', name: 'Spotify', url: 'https://open.spotify.com', search: '/search/{}', category: 'Entertainment', color: '#1DB954' },
+    
+    // Default search
+    { key: '*', name: 'Google Search', url: 'https://google.com', search: '/search?q={}', category: 'Search', color: '#4285F4' }
+  ];
 
-  // Função para serem aplicados estilos de background
-  const applyBackground = (input) => {
-    for (const [key, site] of Object.entries(sites)) {
-      if (site.patterns.some(pattern => pattern.test(input))) {
-        Object.assign(body.style, site.style);
-        return;
-      }
-    }
-    Object.assign(body.style, defaultStyle);
-  };
+  const queryParser = new QueryParser(commands);
 
-  // Função para processar input e redirecionar
-  const processInput = (input) => {
-    // Verifica URLs
-    const urlPatterns = [
-      { pattern: /(http|https):\/\//, action: (match) => window.open(match, "_self") },
-      { pattern: /(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/, action: (match) => window.open(`http://${match}`, "_self") },
-      { pattern: /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/, action: (match) => window.open(`http://${match}`, "_self") }
-    ];
-
-    for (const { pattern, action } of urlPatterns) {
-      if (pattern.test(input)) {
-        action(input);
-        return;
-      }
-    }
-
-    // Verificação sites configurados
-    for (const [key, site] of Object.entries(sites)) {
-      if (site.patterns.some(pattern => pattern.test(input))) {
-        window.open(site.url(input), "_self");
-        return;
-      }
-    }
-
-    // Busca no Google como fallback
-    window.open(`https://google.com/search?q=${encodeURIComponent(input)}`, "_self");
-  };
-
+  // Aplicar tema
   useEffect(() => {
-    const Clock = document.getElementById('Clock');
-    const Search = document.getElementById('Search');
+    const root = document.documentElement;
+    const body = document.body;
+    
+    if (invertedColors) {
+      root.style.setProperty('--background', '#ffffff');
+      root.style.setProperty('--foreground', '#000000');
+      body.classList.add('light-theme');
+    } else {
+      root.style.setProperty('--background', '#101010');
+      root.style.setProperty('--foreground', '#d4d4d4');
+      body.classList.remove('light-theme');
+    }
+  }, [invertedColors]);
 
-    // Handler para teclas
-    const keydownHandler = (event) => {
-      const ignoredKeys = ['Escape', 'ScrollLock', 'AltLeft', 'AltRight', 'ControlLeft', 'ControlRight', 'ShiftRight', 'ShiftLeft', 'CapsLock', 'Tab', 'OsLeft', 'OSRight', 'Enter', 'Backspace', 'Meta', 'MetaLeft'];
-      
-      if (event.code === 'Escape') {
-        Clock.style.display = "block";
-        Search.value = "";
-        Search.style.display = "none";
-        Search.blur();
-        Object.assign(body.style, defaultStyle);
+  // Aplicar background baseado no comando
+  const applyBackground = (query) => {
+    const parsed = queryParser.parse(query);
+    const body = document.body;
+
+    if (parsed.command && parsed.command.color && query) {
+      const color = parsed.command.color;
+      const opacity = invertedColors ? '0.05' : '0.1';
+      body.style.background = `linear-gradient(135deg, ${color}${opacity.replace('0.', '')}, transparent)`;
+    } else if (!query) {
+      body.style.background = '';
+    }
+  };
+
+  // Processar comandos especiais
+  const handleSpecialCommands = (query) => {
+    queryParser.processSpecialCommand(query, {
+      onHelp: () => setShowHelp(true),
+      onQuickLaunch: () => {
+        commands.filter(cmd => cmd.quickLaunch).forEach(cmd => {
+          window.open(cmd.url, '_blank');
+        });
+        hideSearch();
+      },
+      onInvertColors: () => {
+        const newValue = !invertedColors;
+        setInvertedColors(newValue);
+        localStorage.setItem('invertColorCookie', JSON.stringify(newValue));
+        hideSearch();
+      },
+      onToggleKeys: () => {
+        const currentValue = JSON.parse(localStorage.getItem('showKeysCookie') || 'false');
+        localStorage.setItem('showKeysCookie', JSON.stringify(!currentValue));
+        hideSearch();
+      },
+      onCategoryLaunch: (categoryIndex) => {
+        const categories = [...new Set(commands.map(cmd => cmd.category).filter(Boolean))];
+        const targetCategory = categories[categoryIndex];
+        if (targetCategory) {
+          commands.filter(cmd => cmd.category === targetCategory).forEach(cmd => {
+            window.open(cmd.url, '_blank');
+          });
+        }
+        hideSearch();
+      }
+    });
+
+    // Comando settings! adicional
+    if (query === 'settings!') {
+      setShowSettings(true);
+      hideSearch();
+    }
+  };
+
+  // Processar input
+  const handleSubmit = (value = inputValue) => {
+    if (!value.trim()) return;
+
+    const parsed = queryParser.parse(value);
+
+    if (parsed.isSpecialCommand || value === 'settings!') {
+      handleSpecialCommands(value);
+      return;
+    }
+
+    if (parsed.redirect) {
+      window.open(parsed.redirect, '_blank');
+      hideSearch();
+    }
+  };
+
+  // Mostrar busca
+  const showSearch = () => {
+    setIsVisible(true);
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  // Esconder busca
+  const hideSearch = () => {
+    setIsVisible(false);
+    setInputValue('');
+    applyBackground('');
+  };
+
+  // Handlers de eventos
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    applyBackground(value);
+
+    // Auto-redirect para comandos simples se configurado
+    // Só ativar se o valor foi digitado (não apagado) e tem exatamente 1 caractere
+    const instantRedirect = JSON.parse(localStorage.getItem('instantRedirect') || 'false');
+    const parsed = queryParser.parse(value);
+
+    // Verificar se é uma adição de caractere (não remoção)
+    const isAddingCharacter = value.length > inputValue.length;
+
+    if (instantRedirect && parsed.isKey && value.length === 1 && isAddingCharacter) {
+      setTimeout(() => handleSubmit(value), 500);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    } else if (e.key === 'Escape') {
+      hideSearch();
+    }
+  };
+
+  const handleInputBlur = () => {
+    // Delay para permitir cliques em sugestões
+    setTimeout(() => {
+      if (!inputValue.trim()) {
+        hideSearch();
+      }
+    }, 150);
+  };
+
+  // Event listeners globais
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      // Ignorar se já estiver digitando ou modais abertos
+      if (isVisible || showHelp || showSettings) {
         return;
       }
-      
-      if (!ignoredKeys.includes(event.code)) {
-        Clock.style.display = "none";
-        Search.style.display = "block";
-        Search.focus();
+
+      // Ignorar se o foco está em um input, textarea ou elemento editável
+      if (e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'TEXTAREA' ||
+          e.target.isContentEditable ||
+          e.target.closest('input') ||
+          e.target.closest('textarea')) {
+        return;
+      }
+
+      // Mostrar busca apenas para teclas de caracteres (não para teclas especiais como Backspace)
+      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        showSearch();
+
+        // Adicionar a tecla pressionada ao input
+        setInputValue(e.key);
+        applyBackground(e.key);
       }
     };
 
-    // Handler para input
-    const keyupHandler = () => {
-      if (Search.value === "") {
-        Search.style.display = "none";
-        Search.blur();
-        Clock.style.display = "block";
-        Object.assign(body.style, defaultStyle);
-      } else {
-        applyBackground(Search.value);
-      }
-    };
-
-    // Handler para blur
-    const blurHandler = () => {
-      Search.style.display = "none";
-      Clock.style.display = "block";
-      Search.value = "";
-      Object.assign(body.style, defaultStyle);
-    };
-
-    // Handler para Enter
-    const keypressHandler = (event) => {
-      if (event.code === "Enter" || event.code === "NumpadEnter") {
-        event.preventDefault();
-        processInput(Search.value);
-      }
-    };
-
-    // Adiciona event listeners
-    window.addEventListener('keydown', keydownHandler);
-    Search.addEventListener('keyup', keyupHandler);
-    Search.addEventListener('blur', blurHandler);
-    Search.addEventListener('keypress', keypressHandler);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener('keydown', keydownHandler);
-      Search.removeEventListener('keyup', keyupHandler);
-      Search.removeEventListener('blur', blurHandler);
-      Search.removeEventListener('keypress', keypressHandler);
-    };
-  }, []);
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isVisible, showHelp, showSettings]);
 
   return (
-    <textarea id="Search" spellCheck="false" wrap="off"></textarea>
+    <>
+      {/* Search Form */}
+      {isVisible && (
+        <>
+          {/* Overlay */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              zIndex: 998,
+              backdropFilter: 'blur(2px)'
+            }}
+            onClick={hideSearch}
+          />
+          
+          {/* Search Container */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 999,
+              width: '90%',
+              maxWidth: '600px',
+              pointerEvents: 'auto'
+            }}
+          >
+            <form 
+              onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: `var(--background)`,
+                backdropFilter: 'blur(20px)',
+                borderRadius: '12px',
+                border: `1px solid ${invertedColors ? '#cccccc' : '#333333'}`,
+                overflow: 'hidden',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+              }}
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                onBlur={handleInputBlur}
+                placeholder="Digite um comando ou URL..."
+                style={{
+                  flex: 1,
+                  padding: '20px 24px',
+                  fontSize: '18px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: 'var(--foreground)',
+                  fontFamily: 'Geist, sans-serif'
+                }}
+              />
+              
+              {/* Indicador do comando atual */}
+              {inputValue && (
+                <div style={{
+                  padding: '8px 16px',
+                  fontSize: '12px',
+                  opacity: 0.7,
+                  borderLeft: `1px solid ${invertedColors ? '#cccccc' : '#333333'}`,
+                  color: 'var(--foreground)'
+                }}>
+                  {(() => {
+                    const parsed = queryParser.parse(inputValue);
+                    if (parsed.isSpecialCommand || inputValue === 'settings!') return '⚡ Comando especial';
+                    if (parsed.isUrl) return '🌐 URL';
+                    if (parsed.isSearch) return `🔍 Buscar em ${parsed.command?.name}`;
+                    if (parsed.isPath) return `📁 Ir para ${parsed.command?.name}`;
+                    if (parsed.isKey) return `➡️ ${parsed.command?.name}`;
+                    return '🔍 Busca padrão';
+                  })()}
+                </div>
+              )}
+            </form>
+
+            {/* Dicas rápidas */}
+            {!inputValue && (
+              <div style={{
+                marginTop: '16px',
+                padding: '16px',
+                backgroundColor: 'var(--background)',
+                borderRadius: '8px',
+                fontSize: '12px',
+                opacity: 0.8,
+                border: `1px solid ${invertedColors ? '#e0e0e0' : '#333333'}`,
+                color: 'var(--foreground)'
+              }}>
+                <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Comandos rápidos:</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '4px' }}>
+                  <div><code style={{ backgroundColor: invertedColors ? '#f0f0f0' : '#2a2a2a', padding: '2px 4px', borderRadius: '3px' }}>?</code> → Ajuda</div>
+                  <div><code style={{ backgroundColor: invertedColors ? '#f0f0f0' : '#2a2a2a', padding: '2px 4px', borderRadius: '3px' }}>q!</code> → Quick Launch</div>
+                  <div><code style={{ backgroundColor: invertedColors ? '#f0f0f0' : '#2a2a2a', padding: '2px 4px', borderRadius: '3px' }}>settings!</code> → Configurações</div>
+                  <div><code style={{ backgroundColor: invertedColors ? '#f0f0f0' : '#2a2a2a', padding: '2px 4px', borderRadius: '3px' }}>g:react</code> → Buscar no GitHub</div>
+                  <div><code style={{ backgroundColor: invertedColors ? '#f0f0f0' : '#2a2a2a', padding: '2px 4px', borderRadius: '3px' }}>r/programming</code> → Subreddit</div>
+                  <div><code style={{ backgroundColor: invertedColors ? '#f0f0f0' : '#2a2a2a', padding: '2px 4px', borderRadius: '3px' }}>invert!</code> → Inverter cores</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Help Modal */}
+      {showHelp && (
+        <Help 
+          commands={commands}
+          onClose={() => setShowHelp(false)}
+        />
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings onClose={() => setShowSettings(false)} />
+      )}
+    </>
   );
 };
 
